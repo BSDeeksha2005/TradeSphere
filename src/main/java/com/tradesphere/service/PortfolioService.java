@@ -12,6 +12,7 @@ import com.tradesphere.repository.PortfolioRepository;
 import com.tradesphere.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,10 +23,12 @@ public class PortfolioService {
     private final AssetRepository assetRepository;
     private final TransactionService transactionService;
 
-    public PortfolioService(PortfolioRepository portfolioRepository,
-                             UserRepository userRepository,
-                             AssetRepository assetRepository,
-                             TransactionService transactionService) {
+    public PortfolioService(
+            PortfolioRepository portfolioRepository,
+            UserRepository userRepository,
+            AssetRepository assetRepository,
+            TransactionService transactionService) {
+
         this.portfolioRepository = portfolioRepository;
         this.userRepository = userRepository;
         this.assetRepository = assetRepository;
@@ -35,47 +38,65 @@ public class PortfolioService {
     // ------------------------------------------------------------
     // BUY
     // ------------------------------------------------------------
+
     public BuyResponse buyStock(String email, BuyRequest buyRequest) {
 
         if (buyRequest.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0");
+            throw new IllegalArgumentException(
+                    "Quantity must be greater than 0");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found"));
 
-        Asset asset = assetRepository.findBySymbol(buyRequest.getSymbol())
-                .orElseThrow(() -> new IllegalArgumentException("Asset not found for symbol: " + buyRequest.getSymbol()));
+        Asset asset = assetRepository.findBySymbol(
+                        buyRequest.getSymbol())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Asset not found for symbol: "
+                                        + buyRequest.getSymbol()));
 
         double pricePerShare = asset.getPrice();
-        double totalCost = pricePerShare * buyRequest.getQuantity();
+        double totalCost =
+                pricePerShare * buyRequest.getQuantity();
 
         if (user.getBalance() < totalCost) {
-            throw new IllegalStateException("Insufficient balance to complete this purchase");
+            throw new IllegalStateException(
+                    "Insufficient balance to complete this purchase");
         }
 
         user.setBalance(user.getBalance() - totalCost);
         userRepository.save(user);
 
         Optional<Portfolio> existingHolding =
-                portfolioRepository.findByUserIdAndSymbol(user.getId(), asset.getSymbol());
+                portfolioRepository.findByUserIdAndSymbol(
+                        user.getId(),
+                        asset.getSymbol());
 
         Portfolio portfolio;
 
         if (existingHolding.isPresent()) {
+
             portfolio = existingHolding.get();
 
             int oldQuantity = portfolio.getQuantity();
             double oldAveragePrice = portfolio.getAveragePrice();
-            int newQuantity = oldQuantity + buyRequest.getQuantity();
+
+            int newQuantity =
+                    oldQuantity + buyRequest.getQuantity();
 
             double newAveragePrice =
-                    ((oldQuantity * oldAveragePrice) + (buyRequest.getQuantity() * pricePerShare)) / newQuantity;
+                    ((oldQuantity * oldAveragePrice)
+                            + (buyRequest.getQuantity()
+                            * pricePerShare))
+                            / newQuantity;
 
             portfolio.setQuantity(newQuantity);
             portfolio.setAveragePrice(newAveragePrice);
 
         } else {
+
             portfolio = new Portfolio(
                     user.getId(),
                     asset.getSymbol(),
@@ -107,36 +128,61 @@ public class PortfolioService {
     // ------------------------------------------------------------
     // SELL
     // ------------------------------------------------------------
-    public SellResponse sellStock(String email, SellRequest sellRequest) {
+
+    public SellResponse sellStock(
+            String email,
+            SellRequest sellRequest) {
 
         if (sellRequest.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0");
+            throw new IllegalArgumentException(
+                    "Quantity must be greater than 0");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found"));
 
-        Asset asset = assetRepository.findBySymbol(sellRequest.getSymbol())
-                .orElseThrow(() -> new IllegalArgumentException("Asset not found for symbol: " + sellRequest.getSymbol()));
+        Asset asset = assetRepository.findBySymbol(
+                        sellRequest.getSymbol())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Asset not found for symbol: "
+                                        + sellRequest.getSymbol()));
 
-        Portfolio portfolio = portfolioRepository.findByUserIdAndSymbol(user.getId(), asset.getSymbol())
-                .orElseThrow(() -> new IllegalStateException("You do not own any shares of " + asset.getSymbol()));
+        Portfolio portfolio =
+                portfolioRepository.findByUserIdAndSymbol(
+                        user.getId(),
+                        asset.getSymbol())
+                .orElseThrow(() ->
+                        new IllegalStateException(
+                                "You do not own any shares of "
+                                        + asset.getSymbol()));
 
-        if (sellRequest.getQuantity() > portfolio.getQuantity()) {
-            throw new IllegalStateException("Cannot sell more shares than you own");
+        if (sellRequest.getQuantity()
+                > portfolio.getQuantity()) {
+
+            throw new IllegalStateException(
+                    "Cannot sell more shares than you own");
         }
 
         double pricePerShare = asset.getPrice();
-        double totalValue = pricePerShare * sellRequest.getQuantity();
+
+        double totalValue =
+                pricePerShare * sellRequest.getQuantity();
 
         user.setBalance(user.getBalance() + totalValue);
         userRepository.save(user);
 
-        int remainingQuantity = portfolio.getQuantity() - sellRequest.getQuantity();
+        int remainingQuantity =
+                portfolio.getQuantity()
+                        - sellRequest.getQuantity();
 
         if (remainingQuantity == 0) {
+
             portfolioRepository.delete(portfolio);
+
         } else {
+
             portfolio.setQuantity(remainingQuantity);
             portfolioRepository.save(portfolio);
         }
@@ -157,5 +203,18 @@ public class PortfolioService {
                 totalValue,
                 user.getBalance()
         );
+    }
+
+    // ------------------------------------------------------------
+    // VIEW PORTFOLIO
+    // ------------------------------------------------------------
+
+    public List<Portfolio> getUserPortfolio(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found"));
+
+        return portfolioRepository.findByUserId(user.getId());
     }
 }
