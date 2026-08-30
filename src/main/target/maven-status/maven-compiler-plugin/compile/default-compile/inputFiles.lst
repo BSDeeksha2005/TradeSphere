@@ -1,0 +1,11 @@
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/TradesphereApplication.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/config/SecurityConfig.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/controller/AuthController.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/controller/HealthController.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/dto/LoginRequest.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/dto/LoginResponse.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/dto/RegisterRequest.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/dto/RegisterResponse.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/model/User.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/repository/UserRepository.java
+/Users/deekshabs/Downloads/tradesphere/src/main/java/com/tradesphere/service/AuthService.java
