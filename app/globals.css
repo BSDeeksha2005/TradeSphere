@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0a0c10;
+  --color-surface: #10131a;
+  --color-surface-2: #151a22;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-accent: #34c77b;
+  --color-accent-glow: rgba(52, 199, 123, 0.25);
+  --color-text: #e7eaee;
+  --color-text-dim: #8a93a3;
+  --color-text-faint: #5b6472;
+  --color-danger: #f2555a;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes float-chip {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes draw-line {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-float {
+  animation: float-chip 6s ease-in-out infinite;
+}
+
+.animate-draw {
+  stroke-dasharray: 1000;
+  animation: draw-line 2.2s ease-out forwards;
+}
+
+.animate-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
